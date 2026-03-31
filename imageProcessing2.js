@@ -1,8 +1,12 @@
 import { getCfaLevelConfig } from "./getCfaConfig.js";
 
-export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
+export const analyzeExamScore2 = async (
+  imageElement,
+  cfaLevel,
+  extractSubject
+) => {
   // Get config for the selected CFA level
-  const levelConfig = getCfaLevelConfig(cfaLevel);
+  const levelConfig = getCfaLevelConfig(cfaLevel, extractSubject);
 
   // Preprocess the image to ensure consistent dimensions for reliable analysis
   const preprocessedImage = await preprocessImage2(
@@ -13,9 +17,11 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
   // Setup canvas with preprocessed image
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Unable to get 2D context");
   canvas.width = preprocessedImage.width;
   canvas.height = preprocessedImage.height;
   ctx.drawImage(preprocessedImage, 0, 0);
+
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
   const width = imageData.width;
@@ -37,7 +43,6 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
   const baseHeight = levelConfig.dimensions.height;
   const scaleFactorY = height / baseHeight;
 
-  // Calibration for gridlines with tolerance for detection - scaled based on the level config
   const yZeroPercent = Math.round(
     levelConfig.calibration.yZeroPercent * scaleFactorY
   );
@@ -47,12 +52,10 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
 
   // Create enhanced grayscale for better detection
   let grayscale = createGrayscaleArray2(data, width, height);
-  // Enhance contrast to better identify the score lines
   grayscale = enhanceContrast2(grayscale, width, height);
 
   // Function to calculate percentage from y-coordinate
   const yToPercentage2 = (y) => {
-    // Add tolerance to avoid interference with gridlines
     if (y <= yHundredPercent - 5) {
       return 100.0;
     } else if (y >= yZeroPercent + 5) {
@@ -71,6 +74,7 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
   // Setup debug canvas
   const debugCanvas = document.createElement("canvas");
   const debugCtx = debugCanvas.getContext("2d");
+  if (!debugCtx) throw new Error("Unable to get debug 2D context");
   debugCanvas.width = width;
   debugCanvas.height = height;
   debugCtx.drawImage(preprocessedImage, 0, 0);
@@ -127,8 +131,7 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
         width,
         y,
         roiXStart,
-        roiXEnd,
-        x
+        roiXEnd
       );
 
       // Skip if this appears to be a dashed line
@@ -256,12 +259,9 @@ export const analyzeExamScore2 = async (imageElement, cfaLevel = "L1") => {
 
       debugPoints.push({ x, y: bestLineY, score: percentage });
     } else {
-      console.log(`Could not detect score line for ${topic}`);
       scores[topic] = null; // No fallback, return null for missing data
     }
   }
-
-  // Save debug image
   const debugImageUrl = debugCanvas.toDataURL("image/png");
 
   return { scores, debugImageUrl };
@@ -276,6 +276,10 @@ async function preprocessImage2(imageElement, dimensions) {
   // Create a temporary canvas for resizing
   const tempCanvas = document.createElement("canvas");
   const tempCtx = tempCanvas.getContext("2d");
+
+  if (!tempCtx) {
+    throw new Error("Unable to get 2D context from canvas");
+  }
 
   // Set the canvas to the target dimensions
   tempCanvas.width = targetWidth;
@@ -315,7 +319,7 @@ function createGrayscaleArray2(data, width, height) {
 
 // Function to check if a horizontal line is solid (continuous) or dashed
 // Solid lines have continuous dark pixels, dashed lines have gaps
-function checkLineContinuity2(grayscale, width, y, xStart, xEnd, centerX) {
+function checkLineContinuity2(grayscale, width, y, xStart, xEnd) {
   const darkThreshold = 150; // Pixels darker than this are considered part of the line
   const minContinuousPixels = Math.floor((xEnd - xStart) * 0.6); // At least 60% must be dark
 
@@ -368,7 +372,6 @@ function isInBlueRegion2(data, width, y, xStart, xEnd) {
     const b = data[idx + 2];
 
     // Check if pixel has blue tint (b > r and b > g, indicating a blue shaded area)
-    // Light blue: high b, moderate r and g
     if (b > r && b > g && b > 150) {
       blueScore++;
     }
@@ -379,7 +382,6 @@ function isInBlueRegion2(data, width, y, xStart, xEnd) {
   return blueScore / sampleCount > 0.3;
 }
 
-// Enhanced contrast function with adaptive local contrast enhancement
 function enhanceContrast2(grayscale, width, height) {
   // Find min and max values
   let min = 255;
@@ -424,18 +426,15 @@ function enhanceContrast2(grayscale, width, height) {
   return enhanced;
 }
 
-// Improved adaptive threshold function
 function adaptiveThreshold2(grayscale, width, height, windowSize = 15, C = 5) {
   const result = new Uint8Array(grayscale.length);
   const halfWindow = Math.floor(windowSize / 2);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      // Compute local mean with integral image approach for efficiency
       let sum = 0;
       let count = 0;
 
-      // Use a smaller window for efficiency
       for (
         let wy = Math.max(0, y - halfWindow);
         wy <= Math.min(height - 1, y + halfWindow);
@@ -454,7 +453,6 @@ function adaptiveThreshold2(grayscale, width, height, windowSize = 15, C = 5) {
       const mean = sum / count;
       const pixel = grayscale[y * width + x];
 
-      // Apply threshold: if pixel is C units less than local mean, it's foreground
       result[y * width + x] = pixel < mean - C ? 0 : 255;
     }
   }

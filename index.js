@@ -1,8 +1,8 @@
-import { useProcessPdfCfa } from "./useProcessPdf.js";
-import { analyzeExamScore } from "./imageProcessing.js";
-import { analyzeExamScore2 } from "./imageProcessing2.js";
 import { extractCourseId } from "./courseData.js";
 import { matchesExamMonth } from "./helpers.js";
+import { analyzeExamScore } from "./imageProcessing.js";
+import { analyzeExamScore2 } from "./imageProcessing2.js";
+import { useProcessPdfCfa } from "./useProcessPdf.js";
 
 const backendURL = "http://localhost:5002/api";
 const DAUTH = "45454545";
@@ -79,7 +79,7 @@ const getCfaAnalysis = async (userId, link, file) => {
     file
   );
 
-  const { level, examDetails } = summary;
+  const { level, examDetails, extractSubject } = summary;
 
   console.log("sumaary : ", summary);
   console.log("pdf link : ", link);
@@ -91,25 +91,8 @@ const getCfaAnalysis = async (userId, link, file) => {
     img.onerror = reject;
     img.src = page2Image;
   });
-  const isAug2025 = /2025\s+august/i.test(examDetails);
 
   let scores, debugImageUrl;
-
-  // if (isAug2025) {
-  //   // Call analyzeExamScore2 if examDetails is "2025 August"
-  //   ({ scores, debugImageUrl } = await analyzeExamScore2(
-  //     imageElement,
-  //     level,
-  //     examDetails
-  //   ));
-  // } else {
-  //   // Otherwise, call analyzeExamScore
-  //   ({ scores, debugImageUrl } = await analyzeExamScore(
-  //     imageElement,
-  //     level,
-  //     examDetails
-  //   ));
-  // }
 
   if (matchesExamMonth(examDetails)) {
     ({ scores } = await analyzeExamScore2(

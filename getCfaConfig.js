@@ -1,3 +1,5 @@
+// Configuration for different CFA level exam formats
+
 export const CFA_LEVELS = {
   L1: {
     id: "L1",
@@ -27,8 +29,8 @@ export const CFA_LEVELS = {
       },
     },
     calibration: {
-      yZeroPercent: 368,
-      yHundredPercent: 247,
+      yZeroPercent: 367,
+      yHundredPercent: 246,
       xPositions: [134, 220, 305, 390, 475, 560, 645, 725, 805, 895],
     },
   },
@@ -48,8 +50,8 @@ export const CFA_LEVELS = {
       "Portfolio Management",
     ],
     dimensions: {
-      width: 1224,
-      height: 792,
+      width: 1008,
+      height: 612,
       baseDimensions: {
         BASE_WIDTH: 2448,
         BASE_HEIGHT: 1584,
@@ -60,9 +62,9 @@ export const CFA_LEVELS = {
       },
     },
     calibration: {
-      yZeroPercent: 329,
-      yHundredPercent: 209,
-      xPositions: [176, 274, 372, 470, 568, 666, 764, 862, 960, 1058],
+      yZeroPercent: 367,
+      yHundredPercent: 248,
+      xPositions: [138, 220, 305, 390, 475, 560, 645, 725, 805, 895],
     },
   },
   L3: {
@@ -70,11 +72,10 @@ export const CFA_LEVELS = {
     name: "CFA Level 3",
     topics: [
       "Ethical and Professional Standards",
-      "Economics",
-      "Equity Investments",
-      "Fixed Income",
-      "Alternative Investments",
-      "Portfolio Management",
+      "Derivatives and Risk Management",
+      "Portfolio Construction",
+      "Asset Allocation",
+      "Performance Measurement",
     ],
     dimensions: {
       width: 1008,
@@ -89,8 +90,8 @@ export const CFA_LEVELS = {
       },
     },
     calibration: {
-      yZeroPercent: 344,
-      yHundredPercent: 224,
+      yZeroPercent: 367,
+      yHundredPercent: 246,
       xPositions: [173, 309, 445, 581, 717, 853],
     },
   },
@@ -129,10 +130,18 @@ export const CFA_LEVELS = {
   },
 };
 
-// Default CFA level
 export const DEFAULT_CFA_LEVEL = "L1";
 
-// Get configuration for a specific CFA level
-export const getCfaLevelConfig = (level) => {
-  return CFA_LEVELS[level] || CFA_LEVELS[DEFAULT_CFA_LEVEL];
+export const getCfaLevelConfig = (level, extractSubject) => {
+  const key = typeof level === "number" ? `L${level}` : level;
+  const config = CFA_LEVELS[key] || CFA_LEVELS[DEFAULT_CFA_LEVEL];
+
+  if (key === "L3" && extractSubject) {
+    return {
+      ...config,
+      topics: [...config.topics, extractSubject],
+    };
+  }
+
+  return config;
 };
