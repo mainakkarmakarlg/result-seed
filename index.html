@@ -1,0 +1,172 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background: #f7f9fb;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 320px;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        #fileInput {
+            padding: 0.7rem 1.2rem;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 1rem;
+            color: #374151;
+            margin-bottom: 1.2rem;
+            transition: border 0.2s;
+        }
+        #fileInput:hover, #fileInput:focus {
+            border: 1.5px solid #6366f1;
+            outline: none;
+        }
+        .note {
+            color: #64748b;
+            font-size: 0.98rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your Excel File</h1>
+        <input id="fileInput" type="file" placeholder="upload excel">
+        <div id="loader" style="display: none;">Processing... Please wait.</div>
+        <div class="note">Supported: .xlsx, .xls, .csv, .pdf</div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist-viewer-min@3.11.174/build/minified/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <script  type="module" src="index.js"></script>
+</body>
+</html>
+-->
+
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Corrector</title>
+    <style>
+        body {
+            background: #f7f9fb;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 320px;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        #fileInput {
+            padding: 0.7rem 1.2rem;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 1rem;
+            color: #374151;
+            margin-bottom: 1.2rem;
+            transition: border 0.2s;
+        }
+        #fileInput:hover, #fileInput:focus {
+            border: 1.5px solid #6366f1;
+            outline: none;
+        }
+        .note {
+            color: #64748b;
+            font-size: 0.98rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        #loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your Excel File</h1>
+        <input id="fileInput" type="file" placeholder="upload excel">
+        
+        <div id="loader">
+            <div class="spinner"></div>
+            <div style="margin-top: 0.8rem; color: #475569; font-size: 0.95rem;">Processing... Please wait.
+                <br>
+                check the console for progress
+
+            </div>
+        </div>
+
+       
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist-viewer-min@3.11.174/build/minified/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "resultbeta",
+  "version": "1.0.0",
+  "main": "index.js",
+   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "fuse.js": "^7.1.0",
+    "pdfjs-dist": "^3.11.174",
+    "tesseract.js": "^6.0.1"
+  }
+}
