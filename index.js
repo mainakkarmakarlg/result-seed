@@ -15,16 +15,29 @@ function convertToSubjectArray(data) {
   }));
 }
 
-const sendDataToBackend = async (data, file, userId) => {
+const fetchCourseData = async () => {
+  try {
+    const response = await fetch(`${backendURL}/platform/platformcourse`, {
+      method: "GET",
+      headers: {
+        dauth: DAUTH,
+      },
+    });
+    if (response.ok) {
+      const jsonData = await response.json();
+      return { data: jsonData };
+    }
+  } catch (error) {
+    console.error("Error fetching course data:", error);
+  }
+  return { data: [] };
+};
+
+const sendDataToBackend = async (data, file, userId, courseResponse) => {
   let courseIdTemp = null;
   try {
     const apiFormData = new FormData();
-    const courseId = await extractCourseId(
-      backendURL,
-      DAUTH,
-      data.summary,
-      data.summary.subjects
-    );
+    const courseId = extractCourseId(data.summary, courseResponse);
     courseIdTemp = courseId;
     // data.scores.score = data.summary.score;
     // console.log(data.scores);
@@ -74,7 +87,7 @@ const sendDataToBackend = async (data, file, userId) => {
   }
 };
 
-const getCfaAnalysis = async (userId, link, file) => {
+const getCfaAnalysis = async (userId, link, file, courseResponse) => {
   const { page1Image, page2Image, summary, error } = await useProcessPdfCfa(
     file
   );
@@ -110,11 +123,11 @@ const getCfaAnalysis = async (userId, link, file) => {
     ));
   }
 
-  await sendDataToBackend({ summary, scores }, link, userId);
+  await sendDataToBackend({ summary, scores }, link, userId, courseResponse);
   return { summary, scores };
 };
 
-const callWithWebFile = async (userId, fileUrl) => {
+const callWithWebFile = async (userId, fileUrl, courseResponse) => {
   try {
     // Fetch the file from the URL
     const response = await fetch(fileUrl);
@@ -136,7 +149,7 @@ const callWithWebFile = async (userId, fileUrl) => {
     });
 
     // Call your function
-    return await getCfaAnalysis(userId, fileUrl, file);
+    return await getCfaAnalysis(userId, fileUrl, file, courseResponse);
   } catch (error) {
     console.error("Error fetching file:", error);
   }
@@ -144,6 +157,7 @@ const callWithWebFile = async (userId, fileUrl) => {
 
 const processExcelAndFetch = async (file) => {
   const resultsArray = [];
+  const courseResponse = await fetchCourseData();
   const tempFile = file;
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: "array" });
@@ -158,11 +172,15 @@ const processExcelAndFetch = async (file) => {
     const id = row[0];
     // await setTimeout(async () => {
     try {
+      if (!row[2]) {
+        console.warn(`Row ${i + 1}: column 3 is empty, skipping.`);
+        continue;
+      }
       const linksJson = JSON.parse(row[2]);
 
       for (const fileObj of linksJson) {
         if (fileObj.type === "application/pdf" && fileObj.link) {
-          const result = await callWithWebFile(id, fileObj.link);
+          const result = await callWithWebFile(id, fileObj.link, courseResponse);
 
           resultsArray.push({
             id,
