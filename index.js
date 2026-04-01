@@ -180,7 +180,11 @@ const processExcelAndFetch = async (file) => {
 
       for (const fileObj of linksJson) {
         if (fileObj.type === "application/pdf" && fileObj.link) {
-          const result = await callWithWebFile(id, fileObj.link, courseResponse);
+          const result = await callWithWebFile(
+            id,
+            fileObj.link,
+            courseResponse
+          );
 
           resultsArray.push({
             id,
