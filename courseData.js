@@ -17,9 +17,6 @@ export const extractCourseId = (examDetails, response) => {
 
     if (level === 1 || level === 2) {
       const courseYearObj = levelCourse?.Courses;
-      console.log("corseYearObj: ", courseYearObj);
-      console.log("exam year: ", examYear);
-      console.log("courseYearObj: ", courseYearObj);
       const courseMonthObj = courseYearObj?.find((d) => d.name === examYear);
       const courseObj = courseMonthObj?.Courses?.find(
         (d) => d.name === examSession
