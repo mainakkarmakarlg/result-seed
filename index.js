@@ -194,6 +194,11 @@ const processExcelAndFetch = async (file) => {
         console.log("Form Data", getResultData.FormData.formData.marks);
       }
 
+      if (!getResultData.FormData?.formData?.marks?.length) {
+        console.log("Marks array is empty, skipping...");
+        continue;
+      }
+
       for (const fileObj of linksJson) {
         if (fileObj.type === "application/pdf" && fileObj.link) {
           const result = await callWithWebFile(
