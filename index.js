@@ -4,7 +4,7 @@ import { analyzeExamScore } from "./imageProcessing.js";
 import { analyzeExamScore2 } from "./imageProcessing2.js";
 import { useProcessPdfCfa } from "./useProcessPdf.js";
 
-const backendURL = "http://localhost:5002/api";
+const backendURL = "http://192.168.1.55:5002/api";
 const DAUTH = "45454545";
 const failedResponses = [];
 
@@ -50,7 +50,7 @@ const sendDataToBackend = async (data, file, userId, courseResponse) => {
     const dataForApi = {
       enrollmentId: data.summary.cfaId,
       marks: finalData,
-      isPass: data.summary.mininumPassingScore <= data.summary.score,
+      isCompleted: data.summary.mininumPassingScore <= data.summary.score,
       score: data.summary.score,
       courseId: courseId,
     };
@@ -177,6 +177,22 @@ const processExcelAndFetch = async (file) => {
         continue;
       }
       const linksJson = JSON.parse(row[2]);
+
+      const getResult = await fetch(`${backendURL}/user/get-result`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          dauth: DAUTH,
+        },
+        body: JSON.stringify({ attachment: linksJson[0].link }),
+      });
+
+      const getResultData = await getResult.json();
+      console.log("getResult", getResultData);
+
+      if (getResultData.FormData) {
+        console.log("Form Data", getResultData.FormData.formData.marks);
+      }
 
       for (const fileObj of linksJson) {
         if (fileObj.type === "application/pdf" && fileObj.link) {
