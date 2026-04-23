@@ -190,12 +190,8 @@ const processExcelAndFetch = async (file) => {
       const getResultData = await getResult.json();
       console.log("getResult", getResultData);
 
-      if (getResultData.FormData) {
-        console.log("Form Data", getResultData.FormData.formData.marks);
-      }
-
-      if (!getResultData.FormData?.formData?.marks?.length) {
-        console.log("Marks array is empty, skipping...");
+      if (getResultData.formData?.marks?.length) {
+        console.log("Result already exists, skipping...", id);
         continue;
       }
 
